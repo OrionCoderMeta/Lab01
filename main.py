@@ -1,7 +1,16 @@
-# classe DOMANDA
 import random
 
+# Classe Users
+class User:
+    def __init__(self, username, punteggio):
+        self.username = username
+        self.punteggio = punteggio
 
+    def __str__(self):
+        return f"{self.nome} {self.punteggio}"
+
+
+# Classe DOMANDA
 class Domanda:
     def __init__(self,descrizione, difficolta, corretta, risposta1, risposta2, risposta3):
         self.risposta1 = risposta1
@@ -12,7 +21,7 @@ class Domanda:
         self.descrizione = descrizione
         self.domande = [risposta1, risposta2, risposta3, corretta]
 
-    def playone(self):
+    def playone(self): # metodo per le partite
         # Le domande devono essere random, poi le printo
         random.shuffle(self.domande)
         print(f"Livello {self.difficolta}) {self.descrizione}\n"
@@ -44,18 +53,23 @@ def game(list):
     random.shuffle(list)
     flag = True
     punteggio = 0
+    max_punti = 4 # può essere modificato in futuro
 
+    # controllare se una domanda è giusta o sbagliata
     while flag:
         for domanda in list:
-            if domanda.difficolta == punteggio:
+            if punteggio > max_punti:
+                break
+            elif domanda.difficolta == punteggio:
                 flag = domanda.playone()
-                random.shuffle(list)
+                random.shuffle(list) # importante richiamarlo perchè anche se prima avevo saltato una domanda, adesso posso ripescarla
                 if not flag:
                     break
                 punteggio += 1
             else:
                 continue
 
+    # stampa finale e overwrite del punteggio .txt
     print(f"Hai totalizzato {punteggio} punti!")
     username = input("Inserisci il tuo nickname: ")
     with open("punti.txt", "a", encoding="utf-8") as file:
@@ -80,15 +94,22 @@ def main():
 
     game(domande)
 
+    # riordino per punteggio il file punti.txt
+    users = []
+    with open("punti.txt", "r", encoding="utf-8") as file2:
+        righe = file2.readlines()
+        for r in righe:
+            r = r.strip().split(" ")
+            if len(r) == 2:  # Verifica che la riga abbia solo username e punteggio
+                user = User(r[0], r[1])  # r[0] è il nome utente, r[1] è il punteggio
+                users.append(user)
 
+    # Ordina gli utenti in base al punteggio, dal più alto al più basso
+    users.sort(key=lambda x: x.punteggio, reverse=True)
 
-
-
-
-
-
-
-
-
+    # Scrivi il file riordinato
+    with open("punti_ordinati.txt", "w", encoding="utf-8") as file3:
+        for user in users:
+            file3.write(f"{user.username} {user.punteggio}\n")
 
 main()
