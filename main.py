@@ -115,5 +115,4 @@ def main():
 
     game(domande)
 
-
 main()
